@@ -3,6 +3,7 @@
 
 ## TODO 测试结论
 - 终于发现，需要将GAMMA = 1，理由，迷
+- UPDATE_GLOBAL_ITER=5 仿真不行，50最好
 - 好的结果
 """MAX_GLOBAL_EP=5000,
                 UPDATE_GLOBAL_ITER=50,

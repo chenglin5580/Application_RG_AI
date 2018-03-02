@@ -277,7 +277,7 @@ class Worker(object):
                     print(
                         self.name,
                         "Ep:", self.para.GLOBAL_EP,
-                        "x0: %.2f" % self.env_l.x,
+                        "xf: %.2f" % self.env_l.x,
                         "| Ep_r: %.4f" % self.para.GLOBAL_RUNNING_R[-1],
                         "total_step", ep_t
                     )
