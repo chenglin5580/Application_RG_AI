@@ -192,8 +192,8 @@ class ACNet(object):
         # w_init = None
         units_num = 50
         with tf.variable_scope('actor'):
-            l_a1 = tf.layers.dense(self.s, units_num, tf.nn.relu6, kernel_initializer=w_init, name='la1')
-            l_a = tf.layers.dense(l_a1, units_num, tf.nn.relu6, kernel_initializer=w_init, name='la2')
+            l_a1 = tf.layers.dense(self.s, units_num, tf.nn.relu6, use_bias=True, kernel_initializer=w_init, name='la1')
+            l_a = tf.layers.dense(l_a1, units_num, tf.nn.relu6, use_bias=True, kernel_initializer=w_init, name='la2')
             mu = tf.layers.dense(l_a, self.para.N_A, tf.nn.tanh, kernel_initializer=w_init, name='mu')
             # mu = tf.multiply(mu_1, 0.5, name='scaled_a')
             sigma_1 = tf.layers.dense(l_a, self.para.N_A, tf.nn.softplus, kernel_initializer=w_init, name='sigma')
