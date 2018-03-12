@@ -5,14 +5,14 @@ class SmallOptimalControl(object):
 
     def __init__(self):
 
-        self.state = self.reset_stable()
+        self.state = self.reset()
         self.state_dim = len(self.state)
         self.action_dim = 1
         self.a_bound = np.array([0, 1])
         self.delta_t = 0.01
 
 
-    def reset_stable(self):
+    def reset(self):
         self.delta_t = 0.01
         self.x = np.array([0])
         self.t = np.array([0])
@@ -23,12 +23,12 @@ class SmallOptimalControl(object):
         pass
 
 
-    def step(self, u_nor):
+    def step(self, u):
 
         # if self.t > 0.9:
         #     self.delta_t = 0.01
 
-        u = u_nor * abs(self.a_bound[1]-self.a_bound[0])/2 + (self.a_bound[1] + self.a_bound[0])/2
+        # u = u_nor * abs(self.a_bound[1]-self.a_bound[0])/2 + (self.a_bound[1] + self.a_bound[0])/2
 
         x_dot = self.x + u
         self.x = self.x + self.delta_t*x_dot
