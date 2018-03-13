@@ -28,6 +28,7 @@ if para.train:
 else:
     # 1 stable
     # 2 random
+    # 3 multi
     RL.display(3)
 #
 

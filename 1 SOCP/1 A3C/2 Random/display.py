@@ -104,7 +104,7 @@ def display(A3C, display_flag):
         plt.ion()
         plt.grid(color='g', linewidth='0.3', linestyle='--')
 
-        ep_num = 5
+        ep_num = 10
 
         state_track = np.zeros([ep_num, 200])
         action_track = np.zeros([ep_num, 200])
@@ -134,7 +134,9 @@ def display(A3C, display_flag):
                     break
 
         plt.scatter(1, 1, color='r')
-        color_list = ['b', 'c', 'g', 'k', 'm', 'w', 'y']
+        color_list = ['b', 'c', 'g', 'k', 'm', 'w', 'y','b', 'c', 'g', 'k', 'm', 'w', 'y','b', 'c', 'g', 'k', 'm',
+                      'w', 'y','b', 'c', 'g', 'k', 'm', 'w', 'y','b', 'c', 'g', 'k', 'm', 'w', 'y','b', 'c', 'g',
+                      'k', 'm', 'w', 'y']
         for aa in range(200):
             for bb in range(ep_num):
                 if aa<=step_all[bb]:
