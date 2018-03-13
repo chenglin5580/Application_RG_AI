@@ -7,7 +7,7 @@ from SmallOptimalControl import SmallOptimalControl as Object_AI
 
 env = Object_AI()
 train_flag = True
-# train_flag = False
+train_flag = False
 para = A3C.Para( env,  # 环境参数包括state_dim,action_dim,abound,step,reset
                  a_constant=True,  # 动作是否是连续
                  units_a=200,  # 双层网络，第一层的大小
