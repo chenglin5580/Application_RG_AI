@@ -196,7 +196,7 @@ class ACNet(object):
                 # 动作网络优化
                 with tf.name_scope('a_loss'):
                     if self.para.a_constant:
-                        log_prob = normal_dist.log_prob(self.a_his)  # 概率的log值
+                        log_prob = normal_dist.log_prob(self.a_his+1e-5)  # 概率的log值
                         exp_v = log_prob * tf.stop_gradient(td)  # stop_gradient停止梯度传递的意思
                         entropy = normal_dist.entropy()
                         # encourage exploration，香农熵，评价分布的不确定性，鼓励探索，防止提早进入次优
@@ -226,7 +226,9 @@ class ACNet(object):
         w_init = tf.random_normal_initializer(0., .1)
         with tf.variable_scope('actor'):
             l_a1 = tf.layers.dense(self.s, self.para.units_a, tf.nn.relu6, kernel_initializer=w_init, name='la1')
-            l_a = tf.layers.dense(l_a1, self.para.units_a, tf.nn.relu6, kernel_initializer=w_init, name='la')
+            l_a2 = tf.layers.dense(l_a1, self.para.units_a, tf.nn.relu6, kernel_initializer=w_init, name='la2')
+            l_a3 = tf.layers.dense(l_a2, self.para.units_a, tf.nn.relu6, kernel_initializer=w_init, name='la3')
+            l_a = tf.layers.dense(l_a3, self.para.units_a, tf.nn.relu6, kernel_initializer=w_init, name='la')
             if self.para.a_constant:
                 mu = tf.layers.dense(l_a, self.para.N_A, tf.nn.tanh, kernel_initializer=w_init, name='mu')
                 sigma_1 = tf.layers.dense(l_a, self.para.N_A, tf.nn.softplus, kernel_initializer=w_init, name='sigma')
@@ -235,7 +237,9 @@ class ACNet(object):
                 a_prob = tf.layers.dense(l_a, self.para.N_A, tf.nn.softmax, kernel_initializer=w_init, name='ap')
         with tf.variable_scope('critic'):
             l_c1 = tf.layers.dense(self.s, self.para.units_c, tf.nn.relu6, kernel_initializer=w_init, name='lc1')
-            l_c = tf.layers.dense(l_c1, self.para.units_c, tf.nn.relu6, kernel_initializer=w_init, name='lc2')
+            l_c2 = tf.layers.dense(l_c1, self.para.units_c, tf.nn.relu6, kernel_initializer=w_init, name='lc2')
+            l_c3 = tf.layers.dense(l_c2, self.para.units_c, tf.nn.relu6, kernel_initializer=w_init, name='lc3')
+            l_c = tf.layers.dense(l_c3, self.para.units_c, tf.nn.relu6, kernel_initializer=w_init, name='lc')
             v = tf.layers.dense(l_c, 1, kernel_initializer=w_init, name='v')  # state value
         a_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope + '/actor')
         c_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope + '/critic')
