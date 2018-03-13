@@ -12,7 +12,8 @@ import os
 import shutil
 import matplotlib
 # matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+from display import display
+
 import sys
 import copy
 
@@ -102,55 +103,11 @@ class A3C:
     def choose_action(self, state):
         return self.GLOBAL_AC.choose_best(state)
 
-    def display(self):
+    def display(self, display_flag):
         if not self.para.train:
             self.actor_saver.restore(self.para.SESS, self.para.model_path)
         # display
-        state_now = self.para.env.reset_random()
-        state_start= state_now
-
-        state_track = []
-        action_track = []
-        time_track = []
-        reward_track = []
-        reward_me = 0
-        while True:
-
-            omega = self.GLOBAL_AC.choose_action(state_now)
-            print(omega)
-            state_next, reward, done, info = self.para.env.step(omega)
-
-            state_track.append(state_next.copy())
-            action_track.append(info['action'])
-            time_track.append(info['time'])
-            reward_track.append(info['reward'])
-
-            state_now = state_next
-            reward_me += info['reward']
-
-            if done:
-                break
-
-        print('start', state_start)
-        print('totla_reward', reward_me)
-        print('x_end', self.para.env.x)
-        plt.figure(1)
-        plt.plot(time_track, [x[0] for x in state_track])
-        plt.grid()
-        plt.title('x')
-
-        #
-        plt.figure(2)
-        plt.plot(time_track, action_track)
-        plt.title('action')
-        plt.grid()
-
-        plt.figure(3)
-        plt.plot(time_track, reward_track)
-        plt.grid()
-        plt.title('reward')
-
-        plt.show()
+        display(self, display_flag)
 
 
 class ACNet(object):
@@ -230,7 +187,9 @@ class ACNet(object):
         w_init = tf.random_normal_initializer(0., .1)
         with tf.variable_scope('actor'):
             l_a1 = tf.layers.dense(self.s, self.para.units_a, tf.nn.relu6, kernel_initializer=w_init, name='la1')
-            l_a = tf.layers.dense(l_a1, self.para.units_a, tf.nn.relu6, kernel_initializer=w_init, name='la')
+            l_a2 = tf.layers.dense(l_a1, self.para.units_a, tf.nn.relu6, kernel_initializer=w_init, name='la2')
+            l_a3 = tf.layers.dense(l_a2, self.para.units_a, tf.nn.relu6, kernel_initializer=w_init, name='la3')
+            l_a = tf.layers.dense(l_a3, self.para.units_a, tf.nn.relu6, kernel_initializer=w_init, name='la')
             if self.para.a_constant:
                 mu = tf.layers.dense(l_a, self.para.N_A, tf.nn.tanh, kernel_initializer=w_init, name='mu')
                 sigma_1 = tf.layers.dense(l_a, self.para.N_A, tf.nn.softplus, kernel_initializer=w_init, name='sigma')
@@ -239,7 +198,9 @@ class ACNet(object):
                 a_prob = tf.layers.dense(l_a, self.para.N_A, tf.nn.softmax, kernel_initializer=w_init, name='ap')
         with tf.variable_scope('critic'):
             l_c1 = tf.layers.dense(self.s, self.para.units_c, tf.nn.relu6, kernel_initializer=w_init, name='lc1')
-            l_c = tf.layers.dense(l_c1, self.para.units_c, tf.nn.relu6, kernel_initializer=w_init, name='lc2')
+            l_c2 = tf.layers.dense(l_c1, self.para.units_c, tf.nn.relu6, kernel_initializer=w_init, name='lc2')
+            l_c3 = tf.layers.dense(l_c2, self.para.units_c, tf.nn.relu6, kernel_initializer=w_init, name='lc3')
+            l_c = tf.layers.dense(l_c3, self.para.units_c, tf.nn.relu6, kernel_initializer=w_init, name='lc')
             v = tf.layers.dense(l_c, 1, kernel_initializer=w_init, name='v')  # state value
         a_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope + '/actor')
         c_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope + '/critic')

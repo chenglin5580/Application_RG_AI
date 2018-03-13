@@ -10,9 +10,9 @@ train_flag = True
 train_flag = False
 para = A3C.Para(env,  # 环境参数包括state_dim,action_dim,abound,step,reset
                 a_constant=True,  # 动作是否是连续
-                units_a=500,  # 双层网络，第一层的大小
-                units_c=500,  # 双层网络，critic第一层的大小
-                MAX_GLOBAL_EP=50000,  # 全局需要跑多少轮数
+                units_a=300,  # 双层网络，第一层的大小
+                units_c=300,  # 双层网络，critic第一层的大小
+                MAX_GLOBAL_EP=30000,  # 全局需要跑多少轮数
                 UPDATE_GLOBAL_ITER=150,  # 多少代进行一次学习，调小一些学的比较快
                 gamma=1,  # 奖励衰减率
                 ENTROPY_BETA=0.01,  # 表征探索大小的量，越大结果越不确定
@@ -26,7 +26,9 @@ RL = A3C.A3C(para)
 if para.train:
     RL.run()
 else:
-    RL.display()
+    # 1 stable
+    # 2 random
+    RL.display(3)
 #
 
 

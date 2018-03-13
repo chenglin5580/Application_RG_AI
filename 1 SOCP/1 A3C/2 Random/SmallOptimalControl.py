@@ -52,6 +52,7 @@ class SmallOptimalControl(object):
             reward = - u * u * self.delta_t*10
 
         info = {}
+        info['x'] = self.x
         info['action'] = u
         info['time'] = self.t
         info['reward'] = reward
