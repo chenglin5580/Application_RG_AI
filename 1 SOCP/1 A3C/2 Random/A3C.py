@@ -106,7 +106,8 @@ class A3C:
         if not self.para.train:
             self.actor_saver.restore(self.para.SESS, self.para.model_path)
         # display
-        state_now = self.para.env.reset_stable()
+        state_now = self.para.env.reset_random()
+        state_start= state_now
 
         state_track = []
         action_track = []
@@ -130,6 +131,7 @@ class A3C:
             if done:
                 break
 
+        print('start', state_start)
         print('totla_reward', reward_me)
         print('x_end', self.para.env.x)
         plt.figure(1)
@@ -333,7 +335,7 @@ class Worker(object):
                         print(
                             self.name,
                             "Ep:", self.para.GLOBAL_EP,
-                            "xf: %.2f" % self.env_l.x,
+                            "xf: %.4f" % self.env_l.x,
                             "| Ep_r: %.4f" % self.para.GLOBAL_RUNNING_R[-1],
                             "total_step", ep_t
                         )
