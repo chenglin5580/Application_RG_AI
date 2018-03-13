@@ -230,7 +230,7 @@ class ACNet(object):
             if self.para.a_constant:
                 mu = tf.layers.dense(l_a, self.para.N_A, tf.nn.tanh, kernel_initializer=w_init, name='mu')
                 sigma_1 = tf.layers.dense(l_a, self.para.N_A, tf.nn.softplus, kernel_initializer=w_init, name='sigma')
-                sigma = tf.multiply(sigma_1, 0.01, name='scaled_a')
+                sigma = tf.multiply(sigma_1, 0.1, name='scaled_a')
             else:
                 a_prob = tf.layers.dense(l_a, self.para.N_A, tf.nn.softmax, kernel_initializer=w_init, name='ap')
         with tf.variable_scope('critic'):
