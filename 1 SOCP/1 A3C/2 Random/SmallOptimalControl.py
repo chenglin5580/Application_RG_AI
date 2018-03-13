@@ -18,12 +18,12 @@ class SmallOptimalControl(object):
         self.state = np.hstack((self.x, self.t))
         return self.state.copy()
 
-    # def reset_stable(self):
-    #     self.delta_t = 0.01
-    #     self.x = np.array([0])
-    #     self.t = np.array([0])
-    #     self.state = np.hstack((self.x, self.t))
-    #     return self.state.copy()
+    def reset_stable(self):
+        self.delta_t = 0.01
+        self.x = np.array([0])
+        self.t = np.array([0])
+        self.state = np.hstack((self.x, self.t))
+        return self.state.copy()
 
     def render(self):
         pass
@@ -43,10 +43,10 @@ class SmallOptimalControl(object):
 
         if self.t >= 1:
             done = True
-            if abs(self.x-1)<0.01:
-                reward = -u * u * self.delta_t*10
-            else:
-                reward = - u * u * self.delta_t*10 - 1000 * (self.x - 1) * (self.x - 1)
+            # if abs(self.x-1)<0.01:
+            #     reward = -u * u * self.delta_t*10
+            # else:
+            reward = - u * u * self.delta_t*10 - 1000 * (self.x - 1) * (self.x - 1)
         else:
             done = False
             reward = - u * u * self.delta_t*10

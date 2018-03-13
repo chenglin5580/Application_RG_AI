@@ -32,6 +32,7 @@ class Para:
                  ENTROPY_BETA=0.01,  # 表征探索大小的量，越大结果越不确定
                  LR_A=0.0001,  # Actor的学习率
                  LR_C=0.001,  # Crtic的学习率
+                 sigma_mul = 0.1, #sigma的乘子
                  MAX_EP_STEP=510,  # 控制一个回合的最长长度
                  train=True  # 表示训练
                  ):
@@ -47,6 +48,7 @@ class Para:
         self.ENTROPY_BETA = ENTROPY_BETA
         self.LR_A = LR_A
         self.LR_C = LR_C
+        self.sigma_mul = sigma_mul
         self.train = train
 
         # 保存网络位置
@@ -104,7 +106,7 @@ class A3C:
         if not self.para.train:
             self.actor_saver.restore(self.para.SESS, self.para.model_path)
         # display
-        state_now = self.para.env.reset_random()
+        state_now = self.para.env.reset_stable()
 
         state_track = []
         action_track = []
@@ -230,7 +232,7 @@ class ACNet(object):
             if self.para.a_constant:
                 mu = tf.layers.dense(l_a, self.para.N_A, tf.nn.tanh, kernel_initializer=w_init, name='mu')
                 sigma_1 = tf.layers.dense(l_a, self.para.N_A, tf.nn.softplus, kernel_initializer=w_init, name='sigma')
-                sigma = tf.multiply(sigma_1, 0.1, name='scaled_a')
+                sigma = tf.multiply(sigma_1, self.para.sigma_mul, name='scaled_a')
             else:
                 a_prob = tf.layers.dense(l_a, self.para.N_A, tf.nn.softmax, kernel_initializer=w_init, name='ap')
         with tf.variable_scope('critic'):
