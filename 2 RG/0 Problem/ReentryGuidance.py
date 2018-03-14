@@ -9,10 +9,10 @@ class ReentryGuidance(object):
     def __init__(self):
 
         # 仿真数据
-        self.timestep = 1
-        self.s_dim = 4
-        self.a_dim = 1
-        self.a_bound = np.array([0.5, 0.5])  # 0到1
+        self.delta_t = 1
+        self.state_dim = 4
+        self.action_dim = 1
+        self.a_bound = np.array([0, 1])  # 0到1
 
         # 飞行器总体参数
         self.m0 = 907  # kg
@@ -66,25 +66,34 @@ class ReentryGuidance(object):
         if reset_flag == 1:
             # case 1 割线热为52500  weight 0.4571
             self.state = self.X0_2
-            return self.state.copy()
+            ## state_extraction
+            state_feature_now = self.State_Feature_extraction()
+            return state_feature_now.copy()
+
         elif reset_flag == 2:
             # case 2  割线热为49468
             self.range0 = (self.range_need - 7429) / self.R0
             self.X0_2 = np.hstack((self.r0 * 1000, self.range0, self.v0, self.theta0, self.Q0, self.Osci0))
             self.state = self.X0_2
-            return self.state.copy()
+            ## state_extraction
+            state_feature_now = self.State_Feature_extraction()
+            return state_feature_now.copy()
         elif reset_flag == 3:
             # case 3  割线热为54278
             self.range0 = (self.range_need - 8929.1) / self.R0
             self.X0_2 = np.hstack((self.r0 * 1000, self.range0, self.v0, self.theta0, self.Q0, self.Osci0))
             self.state = self.X0_2
-            return self.state.copy()
+            ## state_extraction
+            state_feature_now = self.State_Feature_extraction()
+            return state_feature_now.copy()
         elif reset_flag == 4:
             # case 4  割线热为56015
             self.range0 = (self.range_need - 9562) / self.R0
             self.X0_2 = np.hstack((self.r0 * 1000, self.range0, self.v0, self.theta0, self.Q0, self.Osci0))
             self.state = self.X0_2
-            return self.state.copy()
+            ## state_extraction
+            state_feature_now = self.State_Feature_extraction()
+            return state_feature_now.copy()
         elif reset_flag == 5:
             delta_h = np.random.uniform(-5, 5, 1)
             delta_v = np.random.uniform(-30, 30, 1)
@@ -92,18 +101,23 @@ class ReentryGuidance(object):
             self.X0_2 = np.hstack(
                 ((self.r0 + delta_h) * 1000, self.range0, self.v0 + delta_v, self.theta0, self.Q0, self.Osci0))
             self.state = self.X0_2
-            return self.state.copy()
+            ## state_extraction
+            state_feature_now = self.State_Feature_extraction()
+            return state_feature_now.copy()
 
     def step(self, weight):
 
         # 积分方程, 单步积分
         k1, info = self.Move_equation2(weight)
-        self.state = self.state + self.timestep * k1
+        self.state = self.state + self.delta_t * k1
 
         # reward calculation
         reward, done = self.reward_cal(info)
 
-        return self.state.copy(), reward, done, info
+        ## state_extraction
+        state_feature_now = self.State_Feature_extraction()
+
+        return state_feature_now.copy(), reward, done, info
 
     def reward_cal(self, info):
 
@@ -119,7 +133,7 @@ class ReentryGuidance(object):
         w_ny = 1  # 10
         w_q = 0.1  # 1
         ## reward calculation
-        reward_sum = info['Q_dot'] * self.timestep / 50000 + \
+        reward_sum = info['Q_dot'] * self.delta_t / 50000 + \
                      w_Q_dot * Q_dot_exceed + w_ny * ny_exceed + w_q * q_exceed
 
         if self.state[2] < self.vf:
