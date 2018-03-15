@@ -122,16 +122,15 @@ class ReentryGuidance(object):
     def reward_cal(self, info):
 
         ## path constraint calculation
-        # Q_dot_exceed = np.max(np.array([0, info['Q_dot']-self.Q_dot_max_allow]))
-        Q_dot_exceed = 0
+        Q_dot_exceed = np.max(np.array([0, info['Q_dot']-self.Q_dot_max_allow]))
         ny_exceed = np.max(np.array([0, info['ny'] - self.n_max_allow]))
         q_exceed = np.max(np.array([0, info['q'] - self.q_max_allow]))
         if np.max([Q_dot_exceed, ny_exceed, q_exceed]) > 0:
             print('chaole', 'Q_dot', info['Q_dot'], 'ny', info['ny'], 'q', info['q'])
 
-        w_Q_dot = 1  # 1
-        w_ny = 1  # 10
-        w_q = 0.1  # 1
+        w_Q_dot = 0  # 1
+        w_ny = 0  # 1
+        w_q = 0  # 0.1
         ## reward calculation
         reward_sum = info['Q_dot'] * self.delta_t / 50000 + \
                      w_Q_dot * Q_dot_exceed + w_ny * ny_exceed + w_q * q_exceed
@@ -140,11 +139,40 @@ class ReentryGuidance(object):
             done = True
             range_error = abs((self.state[1] * self.R0) - self.range_need)
             hf_error = abs((self.state[0] / 1000 - self.R0) - self.hf)
-            reward = - reward_sum - 10 * (range_error / 200) ** 2 - 0.1 * (hf_error) ** 2
+            reward = - reward_sum - 10 * (range_error / 200) ** 2 - 0 * (hf_error) ** 2
         else:
             done = False
             reward = - reward_sum
         return reward, done
+
+    def step_mul(self, weight):
+
+        reward_sum = 0
+        for kk in range(10):
+            # 积分方程, 单步积分
+            k1, info = self.Move_equation2(weight)
+            self.state = self.state + self.delta_t * k1
+
+             ## reward calculation
+            reward_sum = reward_sum + (info['Q_dot'] - 315) * self.delta_t/50000
+
+            if self.state[2] < self.vf:
+                done = True
+                range_error = abs((self.state[1] * self.R0) - self.range_need)
+                reward = - reward_sum - 1 * (range_error / 20) ** 2
+                break
+            else:
+                done = False
+                reward = - reward_sum
+
+        ## state_extraction
+        state_feature_now = self.State_Feature_extraction()
+
+        return state_feature_now.copy(), reward, done, info
+
+
+
+
 
     def V2Alpha(self):
         v = self.state[2]

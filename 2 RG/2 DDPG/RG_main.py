@@ -35,7 +35,7 @@ RLmethod = DDPG(
             env.state_dim,  # 状态的维度
             env.a_bound,  # 动作的上下限
             var_end=0.05,  # 最后的探索值 0.1倍幅值
-            vst_liner_times=1500*50,  # 探索值经历多少次学习变成e_end
+            var_liner_times=1500*50,  # 探索值经历多少次学习变成e_end
             var_init=0.5,  # 表示1倍的幅值作为初始值
             LR_A=0.0001,  # Actor的学习率
             LR_C=0.001,  # Critic的学习率
