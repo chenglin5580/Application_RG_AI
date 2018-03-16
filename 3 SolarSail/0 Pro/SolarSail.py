@@ -55,17 +55,13 @@ class SolarSail:
         info = {'t': self.t}
         info['target'] = [self.constant['r_f'], self.constant['phi_f'], self.constant['u_f'], self.constant['v_f']]
         # 设计reward函数
-        reward = - 1
-        c1, c2, c3 = 0, 0, 0
+        reward = 0
+        c1, c2, c3 = 100, 0, 0
         if done:
-            # if np.abs(self.state[0] - self.constant['r_f'])+np.abs(self.state[2] - self.constant['u_f'])<0.5:
-            #     reward+= 200
-            # else:
-            #     reward -= c1 * np.abs(self.state[0] - self.constant['r_f']) + \
-            #               c2 * np.abs(self.state[2] - self.constant['u_f']) + \
-            #               c3 * np.abs(self.state[3] - self.constant['v_f'])
-            reward += -c1 * np.abs(self.state[0] - self.constant['r_f']) - \
-                          c2 * np.abs(self.state[2] - self.constant['u_f']) - \
+            if np.max([0, (self.constant['r_f'] - self.state[0])]) > 0:
+                print(np.max([0, (self.constant['r_f'] - self.state[0])]))
+                reward += -c1 * np.max([0, (self.constant['r_f'] - self.state[0])])
+            reward += -self.t -c2 * np.abs(self.state[2] - self.constant['u_f']) - \
                           c3 * np.abs(self.state[3] - self.constant['v_f'])
 
         return self.state.copy(), reward, done, info

@@ -42,7 +42,7 @@ def display(A3C, display_flag):
 
         plt.figure(2)
         plt.plot(time_profile, action_profile)
-        print(action_profile)
+        # print(action_profile)
 
         plt.show()
 
