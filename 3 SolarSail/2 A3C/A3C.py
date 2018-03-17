@@ -147,6 +147,7 @@ class ACNet(object):
                     with tf.name_scope('choose_a'):  # use local params to choose action
                         self.A = tf.clip_by_value(tf.squeeze(normal_dist.sample(1), axis=0), self.para.A_BOUND[0],
                                                   self.para.A_BOUND[1])  # 根据actor给出的分布，选取动作
+                        self.B = tf.clip_by_value(mu, self.para.A_BOUND[0], self.para.A_BOUND[1])  # 根据actor给出的分布，选取动作
                 else:
                     self.a_prob, self.v, self.a_params, self.c_params = self._build_net(scope)
                 # 价值网络优化
@@ -192,7 +193,7 @@ class ACNet(object):
             l_a = tf.layers.dense(l_a3, self.para.units_a, tf.nn.relu6, kernel_initializer=w_init, name='la')
             if self.para.a_constant:
                 mu = tf.layers.dense(l_a, self.para.N_A, tf.nn.tanh, kernel_initializer=w_init, name='mu')
-                sigma_1 = tf.layers.dense(l_a, self.para.N_A, tf.nn.softplus, kernel_initializer=w_init, name='sigma')
+                sigma_1 = tf.layers.dense(l_a, self.para.N_A, tf.sigmoid, kernel_initializer=w_init, name='sigma')
                 sigma = tf.multiply(sigma_1, self.para.sigma_mul, name='scaled_a')
             else:
                 a_prob = tf.layers.dense(l_a, self.para.N_A, tf.nn.softmax, kernel_initializer=w_init, name='ap')
@@ -228,6 +229,18 @@ class ACNet(object):
             else:
                 return np.argmax(prob_weights)
 
+    def choose_action_best(self, s):  # 函数：选择动作action
+        s = s[np.newaxis, :]
+        if self.para.a_constant:
+            return self.para.SESS.run(self.B, {self.s: s})[0]
+        else:
+            prob_weights = self.para.SESS.run(self.a_prob, feed_dict={self.s: s}).reshape(self.para.N_S)
+            # 可以加入一些排除因素来选择
+            if self.para.train:
+                return np.random.choice(range(self.para.N_A), p=prob_weights)
+            else:
+                return np.argmax(prob_weights)
+
     def choose_best(self, s): # 函数：选择最好的动作action
         s = s[np.newaxis, :]
         if self.para.a_constant:
@@ -254,8 +267,10 @@ class Worker(object):
             s = self.env_l.reset()
             ep_r = 0
             ep_a = []
+            ep_a_best = []
             for ep_t in range(self.para.MAX_EP_STEP):  # MAX_EP_STEP每个片段的最大个数
                 a = self.AC.choose_action(s)  # 选取动作
+                a_best = self.AC.choose_action_best(s)  # 选取动作
                 s_, r, done, info = self.env_l.step(a)
 
                 ep_r += r
@@ -263,6 +278,7 @@ class Worker(object):
                 buffer_a.append(a)
                 buffer_r.append(r)  # normalize
                 ep_a.append(a)
+                ep_a_best.append(a_best)
 
                 if total_step % self.para.UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     if done:
@@ -288,9 +304,11 @@ class Worker(object):
 
                 s = s_
                 total_step += 1
-                if done:  # 每个片段结束，输出一下结果
+                if ep_t == self.para.MAX_EP_STEP-1 or done:  # 每个片段结束，输出一下结果
                     if self.name == 'W_0':
                         print(np.array(ep_a[::20]))
+                        print('-----------')
+                        print(np.array(ep_a_best[::20]))
                     self.para.GLOBAL_RUNNING_R.append(ep_r)
                     if self.para.GLOBAL_EP % 1 ==0:
                         print(

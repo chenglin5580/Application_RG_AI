@@ -22,7 +22,7 @@ class SolarSail:
         self.reset()
         self.state_dim = len(self.state)
         self.action_dim = 1
-        self.a_bound = np.array([0, 1])
+        self.a_bound = np.array([0, 0.9])
 
     def render(self):
         pass
@@ -47,7 +47,7 @@ class SolarSail:
         self.state += self.delta_t * np.array([r_dot, phi_dot, u_dot, v_dot])  # [r,phi,u,v]
         # 判断是否结束
         self.t += self.delta_d  # 单位是天
-        if self.t >= 500 or self.state[0] >= self.constant['r_f']:  # 超过一定距离和一定天数就结束
+        if self.t >= 400 or self.state[0] >= self.constant['r_f']:  # 超过一定距离和一定天数就结束
         # if self.state[0] >= self.constant['r_f']:  # 超过一定距离和一定天数就结束
             done = True
         else:
@@ -55,16 +55,16 @@ class SolarSail:
         info = {'t': self.t}
         info['target'] = [self.constant['r_f'], self.constant['phi_f'], self.constant['u_f'], self.constant['v_f']]
         # 设计reward函数
-        reward = 0
-        c1, c2, c3 = 100, 0, 0
+        reward = -1
+        c1, c2, c3 = 10000, 10000, 0
         if done:
             if np.max([0, (self.constant['r_f'] - self.state[0])]) > 0:
                 print(np.max([0, (self.constant['r_f'] - self.state[0])]))
-                reward += -c1 * np.max([0, (self.constant['r_f'] - self.state[0])])
-            reward += -self.t -c2 * np.abs(self.state[2] - self.constant['u_f']) - \
+                reward += -300 -c1 * np.max([0, (self.constant['r_f'] - self.state[0])])
+            reward += -c2 * (self.state[2] - self.constant['u_f'])**2 - \
                           c3 * np.abs(self.state[3] - self.constant['v_f'])
 
-        return self.state.copy(), reward, done, info
+        return self.state.copy(), reward/100, done, info
 
 
 if __name__ == '__main__':
