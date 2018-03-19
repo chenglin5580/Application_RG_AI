@@ -26,7 +26,7 @@ a_dim = env.action_dim
 print("环境动作空间维度为", a_dim)
 print('-----------------------------\t')
 a_bound = env.a_bound
-print("环境动作空间的下界为", -1*a_bound[0] +a_bound[1], "环境动作空间的上界为", 1*a_bound[0] +a_bound[1] )
+print("环境动作空间的下界为", -a_bound[0], "环境动作空间的上界为", a_bound[1] )
 print('-----------------------------\t')
 
 
@@ -45,8 +45,8 @@ RLmethod = DDPG(
             BATCH_SIZE=1280,  # 批次数量
             units_a=200,  # Actor神经网络单元数
             units_c=200,  # Crtic神经网络单元数
-            # train=True,  # 训练的时候有探索
-            train=False  # display
+            train=True,  # 训练的时候有探索
+            # train=False  # display
             )
 
 ###############################  training  ####################################
@@ -80,6 +80,7 @@ if RLmethod.train:
             ep_reward += reward
 
             if done:
+                print('action', action_sequence[::50])
                 print('Episode:', i, ' Reward: %.5f' % ep_reward, 'Explore: %.5f' % RLmethod.var, ' u_f: %.5f' % env.state[2],
                       'total_step : %.5f' % env.t)
                 break

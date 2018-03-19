@@ -46,10 +46,10 @@ class SmallOptimalControl(object):
             # if abs(self.x-1)<0.01:
             #     reward = -u * u * self.delta_t*10
             # else:
-            reward = - u * u * self.delta_t*10 - 1000 * (self.x - 1) * (self.x - 1)
+            reward = - u * u * self.delta_t - 100 * (self.x - 1) * (self.x - 1)
         else:
             done = False
-            reward = - u * u * self.delta_t*10
+            reward = - u * u * self.delta_t
 
         info = {}
         info['x'] = self.x
@@ -58,7 +58,7 @@ class SmallOptimalControl(object):
         info['reward'] = reward
 
 
-        return self.state.copy(), reward, done, info
+        return self.state.copy(), reward*10, done, info
 
 
 

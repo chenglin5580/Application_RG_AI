@@ -14,12 +14,17 @@ def display(A3C, display_flag):
         time_profile = np.empty(0)
         action_profile = np.empty(0)
 
+        reward_t = 0
+
         while True:
 
-            action = A3C.GLOBAL_AC.choose_action(observation)
+            action = A3C.GLOBAL_AC.choose_best(observation)
+            # action = A3C.workers[0].AC.choose_best(observation)
             print(action)
 
             observation_, reward, done, info = A3C.para.env.step(action)
+
+            reward_t += reward
 
             # memorize the profile
             ob_profile = np.vstack((ob_profile, observation))
@@ -33,6 +38,8 @@ def display(A3C, display_flag):
 
         print('转移轨道时间%d天' % A3C.para.env.t)
         print(A3C.para.env.state)
+        print(reward_t)
+
         plt.figure(1)
         plt.subplot(111, polar=True)
         theta = np.arange(0, 2 * np.pi, 0.02)

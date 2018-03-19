@@ -98,7 +98,7 @@ class A3C:
             worker_threads.append(t)
         COORD.join(worker_threads)
         self.actor_saver.save(self.para.SESS, self.para.model_path)
-        self.display()
+        self.display(1)
 
     def choose_action(self, state):
         return self.GLOBAL_AC.choose_best(state)

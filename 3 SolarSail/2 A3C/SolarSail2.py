@@ -47,7 +47,7 @@ class SolarSail:
         self.state += self.delta_t * np.array([r_dot, phi_dot, u_dot, v_dot])  # [r,phi,u,v]
         # 判断是否结束
         self.t += self.delta_d  # 单位是天
-        if self.t >= 500:
+        if self.t >= 500 or self.state[2]<0:
             done = True
         else:
             done = False
@@ -55,11 +55,16 @@ class SolarSail:
         info['target'] = [self.constant['r_f'], self.constant['phi_f'], self.constant['u_f'], self.constant['v_f']]
         # 设计reward函数
         reward = -np.abs(self.constant['r_f'] - self.state[0])
+        if self.t >= 500:
+            reward += - 100 * np.abs(self.state[0])
+        c1 = 10
+        if done:
+            reward += -c1 * np.abs(self.constant['r_f'] - self.state[0])
 
 
         return self.state.copy(), reward/100, done, info
 
 
 if __name__ == '__main__':
-    env = Env()
+    env = SolarSail()
     print(env.step(0))

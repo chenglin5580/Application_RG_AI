@@ -5,7 +5,7 @@ Designer: Lin Cheng  17.08.2017
 
 ########################### Package  Input  #################################
 
-from SolarSail import SolarSail as Objective_AI
+from SolarSail2 import SolarSail as Objective_AI
 from FixedProfile import FixedProfile as Method
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,7 +33,7 @@ ep_r = 0
 for j in range(max_Ep_Steps):
 
     action = RL_method.choose_action(env.t)
-    action = 0
+    action = 0.79
 
     observation_, reward, done, info = env.step(action)
 
